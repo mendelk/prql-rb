@@ -147,8 +147,12 @@ jobs:
               fi
             done
             [ -n "$platform" ] || platform="ruby"
+            # Remote listing groups all platforms of a version in one
+            # paren block, e.g. "prql-rb (0.1.0 ruby aarch64-linux)":
+            # extract the block for this version, then word-match the
+            # platform inside it.
             if gem list --remote --all --exact "$name" 2>/dev/null \
-                 | grep -q "$version $platform"; then
+                 | grep -o "($version [^)]*)" | grep -qw "$platform"; then
               echo "Skipping $name $version $platform (already published)"
               continue
             fi
