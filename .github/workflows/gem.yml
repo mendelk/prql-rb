@@ -98,27 +98,22 @@ jobs:
           files: pkg/*.gem
 
   publish:
-    # Push to RubyGems.org is a separate manual step so a fresh release
-    # can be reviewed on GitHub Releases first — RubyGems yanks are
-    # permanent, so a bad gem should never be pushed.
+    # Push to RubyGems.org via trusted publishing (OIDC): no API key,
+    # short-lived tokens scoped to this gem. Requires the trusted
+    # publisher registered on rubygems.org (repo mendelk/prql-rb,
+    # workflow gem.yml, environment rubygems).
     if: startsWith(github.ref, 'refs/tags/v')
     needs: release
     runs-on: ubuntu-latest
     environment: rubygems
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
           path: pkg
           merge-multiple: true
-      - name: Push to RubyGems.org
-        env:
-          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-        run: |
-          mkdir -p ~/.gem
-          echo ":rubygems_api_key: ${GEM_HOST_API_KEY}" > ~/.gem/credentials
-          chmod 0600 ~/.gem/credentials
-          # gem push accepts exactly one gem per invocation
-          for gem in pkg/*.gem; do
-            gem push "$gem"
-          done
+      - uses: rubygems/release-gem@v1
