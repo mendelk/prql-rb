@@ -67,11 +67,11 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - run: gem build prql_rb.gemspec
+      - run: gem build prql-rb.gemspec
       - uses: actions/upload-artifact@v4
         with:
           name: gem-ruby
-          path: prql_rb-*.gem
+          path: prql-rb-*.gem
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

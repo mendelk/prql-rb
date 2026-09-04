@@ -1,13 +1,13 @@
 require_relative "lib/prql_rb/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "prql_rb"
+  spec.name = "prql-rb"
   spec.version = PrqlRb::VERSION
   spec.authors = [ "Mendel Kramer" ]
   spec.summary = "Compile PRQL to SQL using prqlc"
   spec.description = "Ruby bindings for the PRQL compiler (prqlc), a Rust " \
                      "implementation of the PRQL pipelined query language."
-  spec.homepage = "https://github.com/mendelk/prql_rb"
+  spec.homepage = "https://github.com/mendelk/prql-rb"
   spec.license = "AGPL-3.0-or-later"
   spec.required_ruby_version = ">= 3.2"
 

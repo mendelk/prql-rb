@@ -1,10 +1,10 @@
-# prql_rb
+# prql-rb
 
 Ruby bindings for the [PRQL compiler](https://prql-lang.org) (`prqlc`), a
 Rust implementation of the PRQL pipelined query language.
 
 ```ruby
-require "prql_rb"
+require "prql-rb"
 
 PrqlRb.compile(<<~PRQL)
   from transactions
@@ -22,7 +22,7 @@ The default target dialect is PostgreSQL. Compilation failures raise
 Add to your Gemfile:
 
 ```ruby
-gem "prql_rb"
+gem "prql-rb"
 ```
 
 Precompiled platform gems are published for `aarch64-linux`,
