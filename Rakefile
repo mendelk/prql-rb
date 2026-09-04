@@ -1,5 +1,6 @@
 require "bundler/gem_tasks"
 require "rake/extensiontask"
+require "rake/testtask"
 require "rb_sys/mkmf" unless RUBY_PLATFORM.match?(/mswin|ming|cygwin/)
 
 Dir["ext/prql_rb/Cargo.toml"].each do |ext|
@@ -22,7 +23,3 @@ Rake::TestTask.new do |t|
 end
 
 task default: %i[clobber compile test]
-
-# Skip compiling on install when a prebuilt platform gem already
-# provided the extension (bundler resolves *.so gems first).
-task :compile
