@@ -89,6 +89,21 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: pkg/*.gem
+
+  publish:
+    # Push to RubyGems.org is a separate manual step so a fresh release
+    # can be reviewed on GitHub Releases first — RubyGems yanks are
+    # permanent, so a bad gem should never be pushed.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: release
+    runs-on: ubuntu-latest
+    environment: rubygems
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: pkg
+          merge-multiple: true
       - name: Push to RubyGems.org
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
