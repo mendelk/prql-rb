@@ -24,8 +24,11 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-          # sccache avoids the tarball cache-save warnings on fresh keys
-          cargo-cache: sccache
+          # sccache is unavailable for aarch64-apple-darwin via
+          # cargo-binstall (fatal exit 94 on macos runners), and the
+          # default tarball strategy emits benign cache-save warnings
+          # on fresh keys. The build is small enough to skip caching.
+          cargo-cache: false
       - name: Compile extension
         run: bundle exec rake compile
       - name: Run tests
