@@ -98,10 +98,12 @@ jobs:
           files: pkg/*.gem
 
   publish:
-    # Push to RubyGems.org via trusted publishing (OIDC): no API key,
-    # short-lived tokens scoped to this gem. Requires the trusted
-    # publisher registered on rubygems.org (repo mendelk/prql-rb,
-    # workflow gem.yml, environment rubygems).
+    # Push the cross-compiled platform gems to RubyGems.org via trusted
+    # publishing (OIDC): no API key, short-lived tokens scoped to this
+    # gem. The source (ruby platform) gem is pushed by `rake release`;
+    # the prebuilt platform gems from the build jobs are pushed
+    # directly. Already-published versions are skipped so re-tagging a
+    # release is safe.
     if: startsWith(github.ref, 'refs/tags/v')
     needs: release
     runs-on: ubuntu-latest
@@ -120,4 +122,20 @@ jobs:
         with:
           path: pkg
           merge-multiple: true
-      - uses: rubygems/release-gem@v1
+      - uses: rubygems/configure-rubygems-credentials@v2
+      - name: Push gems to RubyGems.org
+        env:
+          GEM_HOST_API_KEY: ${{ env.GEM_HOST_API_KEY }}
+        run: |
+          for gem in pkg/*.gem; do
+            name="$(gem specification "$gem" name)"
+            version="$(gem specification "$gem" version)"
+            platform="$(gem specification "$gem" platform)"
+            if gem list --remote --all --exact "$name" | grep -q "$version.*$platform"; then
+              echo "Skipping $name $version $platform (already published)"
+              continue
+            fi
+            gem push "$gem"
+          done
+      - name: Wait for release to propagate
+        run: gem install rubygems-await --no-document && gem exec rubygems-await pkg/*.gem
