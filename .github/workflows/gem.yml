@@ -36,9 +36,8 @@ jobs:
         run: bundle exec rake test
 
   build-gems:
-    # Build precompiled platform gems for every release. The ruby gem
-    # (source) plus per-platform fat gems are attached to the GitHub
-    # release, and pushed to RubyGems.org when the tag is stable.
+    # Cross-compile precompiled platform gems via rb-sys-dock
+    # (same images/conventions as wasmtime-rb).
     if: startsWith(github.ref, 'refs/tags/v')
     needs: test
     runs-on: ubuntu-latest
@@ -55,17 +54,16 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-      - name: Cross-compile ${{ matrix.platform }}
-        run: |
-          gem install rake-compiler-dock rake-compiler
-          rake-compiler-dock \
-            --platform ${{ matrix.platform }} \
-            rake native:${{ matrix.platform }} gem
-      - name: Upload gem artifact
-        uses: actions/upload-artifact@v5
+      - uses: oxidize-rb/actions/cross-gem@v1
+        id: cross-gem
+        with:
+          platform: ${{ matrix.platform }}
+          ruby-versions: "3.2,3.3,3.4"
+      - uses: actions/upload-artifact@v5
         with:
           name: gem-${{ matrix.platform }}
-          path: pkg/*.gem
+          path: ${{ steps.cross-gem.outputs.gem-path }}
+          if-no-files-found: error
 
   build-source-gem:
     if: startsWith(github.ref, 'refs/tags/v')

@@ -2,7 +2,7 @@
 /.yardoc
 /pkg/
 /tmp/
-/Gemfile.lock
+# Gemfile.lock is committed: the cross-gem action reads the rb_sys version from it.
 /lib/**/*.so
 /lib/**/*.bundle
 /ext/**/target/

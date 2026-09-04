@@ -1,0 +1,3 @@
+[workspace]
+members = ["ext/prql_rb"]
+resolver = "2"

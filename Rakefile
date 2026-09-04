@@ -1,20 +1,11 @@
 require "bundler/gem_tasks"
-require "rake/extensiontask"
 require "rake/testtask"
-require "rb_sys/mkmf" unless RUBY_PLATFORM.match?(/mswin|ming|cygwin/)
+require "rb_sys/extensiontask"
 
-Dir["ext/prql_rb/Cargo.toml"].each do |ext|
-  Rake::ExtensionTask.new("prql_rb/prql_rb") do |t|
-    t.ext_dir = File.dirname(ext)
-    # Cross-compile fat binaries for these platforms via
-    # `rake-compiler-dock` (see .github/workflows/gem.yml).
-    t.cross_platform = %w[
-      aarch64-linux
-      arm64-darwin
-      x86_64-linux
-      x86_64-darwin
-    ]
-  end
+GEMSPEC = Gem::Specification.load(File.expand_path("prql-rb.gemspec", __dir__))
+
+RbSys::ExtensionTask.new("prql_rb", GEMSPEC) do |ext|
+  ext.lib_dir = "lib/prql_rb"
 end
 
 Rake::TestTask.new do |t|
