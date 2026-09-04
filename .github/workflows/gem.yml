@@ -19,11 +19,13 @@ jobs:
         ruby: [ "3.2", "3.3", "3.4" ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oxidize-rb/actions/setup-ruby-and-rust@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+          # sccache avoids the tarball cache-save warnings on fresh keys
+          cargo-cache: sccache
       - name: Compile extension
         run: bundle exec rake compile
       - name: Run tests
@@ -45,7 +47,7 @@ jobs:
           - arm64-darwin
           - x86_64-darwin
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Cross-compile ${{ matrix.platform }}
         run: |
           gem install rake-compiler-dock rake-compiler
@@ -53,7 +55,7 @@ jobs:
             --platform ${{ matrix.platform }} \
             rake native:${{ matrix.platform }} gem
       - name: Upload gem artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: gem-${{ matrix.platform }}
           path: pkg/*.gem
@@ -63,12 +65,12 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
       - run: gem build prql-rb.gemspec
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: gem-ruby
           path: prql-rb-*.gem
@@ -80,8 +82,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           path: pkg
           merge-multiple: true
@@ -99,8 +101,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: rubygems
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
         with:
           path: pkg
           merge-multiple: true
