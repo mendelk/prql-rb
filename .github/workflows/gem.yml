@@ -127,11 +127,28 @@ jobs:
         env:
           GEM_HOST_API_KEY: ${{ env.GEM_HOST_API_KEY }}
         run: |
+          shopt -s extglob
           for gem in pkg/*.gem; do
-            name="$(gem specification "$gem" name)"
-            version="$(gem specification "$gem" version)"
-            platform="$(gem specification "$gem" platform)"
-            if gem list --remote --all --exact "$name" | grep -q "$version.*$platform"; then
+            # Canonical filename: name-version-platform.gem, where the
+            # name itself may contain hyphens (e.g. prql-rb-0.1.0.gem,
+            # prql-rb-0.1.0-aarch64-linux.gem). The version is the first
+            # dash-separated field that is purely numeric+dotted.
+            base="$(basename "$gem" .gem)"
+            name=""; version=""; platform=""
+            seen_version=false
+            IFS='-' read -ra parts <<< "$base"
+            for part in "${parts[@]}"; do
+              if ! $seen_version && [[ "$part" =~ ^[0-9][0-9.]*$ ]]; then
+                version="$part"; seen_version=true
+              elif ! $seen_version; then
+                name="${name:+$name-}$part"
+              else
+                platform="${platform:+$platform-}$part"
+              fi
+            done
+            [ -n "$platform" ] || platform="ruby"
+            if gem list --remote --all --exact "$name" 2>/dev/null \
+                 | grep -q "$version $platform"; then
               echo "Skipping $name $version $platform (already published)"
               continue
             fi
