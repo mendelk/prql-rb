@@ -59,7 +59,7 @@ jobs:
         with:
           platform: ${{ matrix.platform }}
           ruby-versions: "3.2,3.3,3.4"
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: gem-${{ matrix.platform }}
           path: ${{ steps.cross-gem.outputs.gem-path }}
@@ -75,7 +75,7 @@ jobs:
         with:
           ruby-version: "3.4"
       - run: gem build prql-rb.gemspec
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: gem-ruby
           path: prql-rb-*.gem
@@ -88,7 +88,7 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           path: pkg
           merge-multiple: true
@@ -107,7 +107,7 @@ jobs:
     environment: rubygems
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           path: pkg
           merge-multiple: true
@@ -118,4 +118,7 @@ jobs:
           mkdir -p ~/.gem
           echo ":rubygems_api_key: ${GEM_HOST_API_KEY}" > ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
-          gem push pkg/*.gem
+          # gem push accepts exactly one gem per invocation
+          for gem in pkg/*.gem; do
+            gem push "$gem"
+          done
