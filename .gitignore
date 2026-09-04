@@ -1,0 +1,13 @@
+/.bundle/
+/.yardoc
+/pkg/
+/tmp/
+/Gemfile.lock
+/lib/**/*.so
+/lib/**/*.bundle
+/ext/**/target/
+/ext/**/*.so
+/ext/**/*.bundle
+/ext/**/Makefile
+/ext/**/mkmf.log
+Cargo.lock.bak
